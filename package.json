@@ -1,7 +1,7 @@
 {
-  "name": "typescript-module-template",
+  "name": "systemic-converse",
   "version": "1.0.0",
-  "description": "description of the module",
+  "description": "A Systemic component that let's components converse in the direction opposite of their dependency",
   "main": "dist/index.js",
   "scripts": {
     "build": "rimraf dist && tsc",
@@ -38,13 +38,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/teunmooij/typescript-module-template.git"
+    "url": "git+https://github.com/infinitaslearning/systemic-converse.git"
   },
   "keywords": [],
   "author": "Teun Mooij",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/teunmooij/typescript-module-template/issues"
+    "url": "https://github.com/infinitaslearning/systemic-converse/issues"
   },
-  "homepage": "https://github.com/teunmooij/typescript-module-template#readme"
+  "homepage": "https://github.com/infinitaslearning/systemic-converse#readme"
 }

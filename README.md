@@ -1,11 +1,11 @@
-# [module-name]
+# systemic-converse
 
-Short description of the module
+A [Systemic component](https://github.com/onebeyond/systemic) that let's other systemic components converse in the direction opposite of their dependency 
 
 ## Installation
 
 ```shell
-$ npm install <module-name>
+$ npm install systemic-converse
 ```
 
 ## Usage
