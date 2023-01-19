@@ -1,3 +1,4 @@
-export const greet = (name: string, logger: { log: (text: string) => void } = console) => {
-  logger.log(`Hello ${name}!`);
-};
+import { initConverse } from './component';
+
+export type { Converse, Config } from './component';
+export default initConverse;
