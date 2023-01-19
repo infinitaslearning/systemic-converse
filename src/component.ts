@@ -29,16 +29,14 @@ interface SignalContext {
   resultPromise: Promise<any>;
 }
 
-const defaultKey = 'Betisman';
-const timeoutKey = 'neodmy';
+const defaultKey = '__default__';
 
 const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number | undefined): Promise<T> => {
   if (!timeoutMs) return promise;
-  const sleep = new Promise<typeof timeoutKey>(resolve => setTimeout(() => resolve(timeoutKey), timeoutMs));
-  return Promise.race([promise, sleep]).then(value => {
-    if (value === timeoutKey) throw new Error('A timeout occured while waiting for a converse promise to resolve');
-    return value;
-  });
+  const timeout = new Promise<T>((resolve, reject) =>
+    setTimeout(() => reject(new Error('A timeout occured while waiting for a converse promise to resolve')), timeoutMs),
+  );
+  return Promise.race([promise, timeout]);
 };
 
 export const initConverse = <TSignals extends Record<string, unknown> = Record<string, any>>(): Component<

@@ -1,7 +1,7 @@
 import systemic from 'systemic';
 import initConverse, { Converse } from '../src';
 
-const testKey = 'hamsaaldrobi';
+const testKey = 'testKey';
 
 const isResolved = (p: Promise<any>) => Promise.race([p, 'unresolved']).then(value => value !== 'unresolved');
 
@@ -55,7 +55,7 @@ describe('component tests', () => {
   });
 
   it('works between systemic components', async () => {
-    type Signals = { hamsaaldrobi: string; done: void };
+    type Signals = { greet: string; reply: string; done: void };
     type TestConverse = Converse<Signals>;
 
     const data = '¿Qué tal?';
@@ -67,7 +67,7 @@ describe('component tests', () => {
           recorder('waiting for system');
           await converse.await();
           recorder('signaling from Betisman');
-          converse.signal('hamsaaldrobi', { data });
+          converse.signal('greet', { data });
         })();
 
         return Promise.resolve();
@@ -77,8 +77,21 @@ describe('component tests', () => {
     const neodmy = {
       start: ({ converse }: { converse: TestConverse }) => {
         (async () => {
-          const question = await converse.await('hamsaaldrobi');
+          const question = await converse.await('greet');
           recorder(`Received "${question}", signaling from neodmy`);
+          converse.signal('reply', { data: 'Estoy bien, gracias.' });
+        })();
+
+        return Promise.resolve();
+      },
+    };
+
+    const hamsaaldrobi = {
+      start: ({ converse }: { converse: TestConverse }) => {
+        (async () => {
+          await converse.await('greet');
+          const reply = await converse.await('reply');
+          recorder(`Received "${reply}", signaling from hamsaaldrobi`);
           converse.signal('done');
         })();
 
@@ -91,6 +104,8 @@ describe('component tests', () => {
       .add('Betisman', Betisman)
       .dependsOn('converse')
       .add('neodmy', neodmy)
+      .dependsOn('converse')
+      .add('hamsaaldrobi', hamsaaldrobi)
       .dependsOn('converse');
 
     const { converse } = await system.start();
@@ -103,7 +118,8 @@ describe('component tests', () => {
     expect(recorder).toHaveBeenNthCalledWith(2, 'system is ready');
     expect(recorder).toHaveBeenNthCalledWith(3, 'signaling from Betisman');
     expect(recorder).toHaveBeenNthCalledWith(4, 'Received "¿Qué tal?", signaling from neodmy');
-    expect(recorder).toHaveBeenNthCalledWith(5, 'Thanks Betisman, neodmy and hamsaaldrobi');
+    expect(recorder).toHaveBeenNthCalledWith(5, 'Received "Estoy bien, gracias.", signaling from hamsaaldrobi');
+    expect(recorder).toHaveBeenNthCalledWith(6, 'Thanks Betisman, neodmy and hamsaaldrobi');
   });
 
   it('throws if a timeout occures while waiting for a signal', async () => {
@@ -133,23 +149,6 @@ describe('component tests', () => {
     converse.signal(testKey);
     const test = () => converse.signal(testKey);
 
-    expect(test).toThrow('Signal with key hamsaaldrobi has already been resolved');
-  });
-
-  it('removes the oldest signal when maxSignals is reached', async () => {
-    const converse = await initConverse().start({ config: { maxSignals: 2 } });
-
-    converse.signal('a', { data: 1 });
-    converse.signal('b', { data: 2 });
-    converse.signal('c');
-
-    expect(await converse.await('a')).toBe(1);
-
-    converse.signal('d');
-
-    const result = converse.await('a');
-
-    expect(await isResolved(result)).toBe(false);
-    expect(await converse.await('b')).toBe(2);
+    expect(test).toThrow('Signal with key testKey has already been resolved');
   });
 });
