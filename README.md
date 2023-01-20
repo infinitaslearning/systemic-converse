@@ -10,7 +10,7 @@ A parting gift with many thanks for all your amazing efforts over the years. Hop
 
 Your friends from the Integrations team
 
-[teunmooij](https://github.com/teunmooij), [hustler](https://github.com/hustler), [john](https://github.com/theunisjohn), [nanotower](https://github.com/nanotower), [akoszoltangoracz](https://github.com/akoszoltangoracz), [gianluca](https://github.com/gianlucadonato)
+[teunmooij](https://github.com/teunmooij), [hustler](https://github.com/hustler), [john](https://github.com/theunisjohn), [nanotower](https://github.com/nanotower), [akoszoltangoracz](https://github.com/akoszoltangoracz), [gianluca](https://github.com/gianlucadonato). [sergio](https://github.com/sergioCB95)
 
 ## Installation
 
