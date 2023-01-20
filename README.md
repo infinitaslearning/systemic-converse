@@ -2,6 +2,16 @@
 
 A [Systemic component](https://github.com/onebeyond/systemic) that let's other systemic components converse in the direction opposite of their dependency or to multiple components at once.
 
+## Special thanks
+
+[Betisman](https://github.com/Betisman), [neodmy](https://github.com/neodmy), [hamsaaldrobi](https://github.com/hamsaaldrobi)
+
+A parting gift with many thanks for all your amazing efforts over the years. Hopefully we’ll ‘Converse’ many more time in the future!
+
+Your friends from the Integrations team
+
+[teunmooij](https://github.com/teunmooij), [hustler](https://github.com/hustler)
+
 ## Installation
 
 ```shell
