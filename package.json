@@ -1,7 +1,7 @@
 {
   "name": "systemic-converse",
   "version": "1.0.0",
-  "description": "A Systemic component that let's components converse in the direction opposite of their dependency",
+  "description": "A Systemic component that lets components converse in the direction opposite of their dependency",
   "main": "dist/index.js",
   "scripts": {
     "build": "rimraf dist && tsc",
