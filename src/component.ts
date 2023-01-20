@@ -14,9 +14,25 @@ interface AwaitFn<TSignals extends Record<string, unknown>> {
   <TExpected = any>(timeoutMs?: number): Promise<TExpected>;
 }
 
+type PublishFn<TSignals extends Record<string, unknown>> = <TKey extends keyof TSignals & string>(
+  key: TKey,
+  data: TSignals[TKey],
+) => void;
+
+type CallBack<TData> = (data: TData, context: Record<string, unknown>) => void;
+
+type SubscribeFn<TSignals extends Record<string, unknown> = any> = <TKey extends keyof TSignals & string>(
+  key: TKey,
+  callback: CallBack<TSignals[TKey]>,
+) => void;
+
 export interface Converse<TSignals extends Record<string, unknown> = Record<string, any>> {
   signal: SignalFn<TSignals>;
   await: AwaitFn<TSignals>;
+
+  publish: PublishFn<TSignals>;
+  subscribe: SubscribeFn<TSignals>;
+  unsubscribe: SubscribeFn<TSignals>;
 }
 
 export interface Config {
@@ -46,17 +62,18 @@ export const initConverse = <TSignals extends Record<string, unknown> = Record<s
   start: async ({ config: { maxSignals = 1000 } = {} }) => {
     if (maxSignals < 1) throw new Error('maxSignals must be higher or equal to 1');
 
-    const contexts: Record<string, SignalContext> = {};
+    const signalRegistrations: Record<string, SignalContext> = {};
+    const pubSubRegistrations = {} as { [K in keyof TSignals]: CallBack<TSignals[K]>[] };
 
     const addContext = (key: string, context: SignalContext) => {
-      const currentContexts = Object.entries(contexts);
-      if (currentContexts.length >= maxSignals - 1 && !(key in contexts)) {
+      const currentContexts = Object.entries(signalRegistrations);
+      if (currentContexts.length >= maxSignals - 1 && !(key in signalRegistrations)) {
         currentContexts.sort(([, { timestamp: first }], [, { timestamp: second }]) => first - second);
         const [[oldestKey]] = currentContexts;
-        delete contexts[oldestKey];
+        delete signalRegistrations[oldestKey];
       }
 
-      contexts[key] = context;
+      signalRegistrations[key] = context;
     };
 
     return {
@@ -64,11 +81,11 @@ export const initConverse = <TSignals extends Record<string, unknown> = Record<s
         const key = typeof arg0 === 'string' ? arg0 : defaultKey;
         const options = typeof arg0 === 'object' ? arg0 : arg1;
 
-        if (!contexts[key]) {
+        if (!signalRegistrations[key]) {
           return addContext(key, { timestamp: Date.now(), resultPromise: Promise.resolve(options?.data) });
         }
 
-        const signalContext = contexts[key];
+        const signalContext = signalRegistrations[key];
         if (!signalContext.resolve) throw new Error(`Signal with key ${key} has already been resolved`);
 
         signalContext.resolve(options?.data);
@@ -78,7 +95,7 @@ export const initConverse = <TSignals extends Record<string, unknown> = Record<s
         const key = typeof arg0 === 'string' ? arg0 : defaultKey;
         const timeoutMs = typeof arg0 === 'number' ? arg0 : arg1;
 
-        if (contexts[key]) return withTimeout(contexts[key].resultPromise, timeoutMs);
+        if (signalRegistrations[key]) return withTimeout(signalRegistrations[key].resultPromise, timeoutMs);
 
         const signalContext = { timestamp: Date.now() } as SignalContext;
         signalContext.resultPromise = new Promise(resolve => {
@@ -87,6 +104,20 @@ export const initConverse = <TSignals extends Record<string, unknown> = Record<s
         addContext(key, signalContext);
 
         return withTimeout(signalContext.resultPromise, timeoutMs);
+      },
+      publish: (key, data) => {
+        const subscribers = pubSubRegistrations[key];
+        if (subscribers) {
+          const context = {};
+          subscribers.forEach(callback => callback(data, context));
+        }
+      },
+      subscribe: (key, callback) => {
+        if (!pubSubRegistrations[key]) pubSubRegistrations[key] = [];
+        pubSubRegistrations[key].push(callback);
+      },
+      unsubscribe: (key, callback) => {
+        pubSubRegistrations[key] = pubSubRegistrations[key]?.filter(registration => registration !== callback) || [];
       },
     };
   },

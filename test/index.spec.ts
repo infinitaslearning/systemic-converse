@@ -151,4 +151,65 @@ describe('component tests', () => {
 
     expect(test).toThrow('Signal with key testKey has already been resolved');
   });
+
+  it('receive publications in a subscription', async () => {
+    const converse = await initConverse().start({});
+
+    const subscription1 = jest.fn();
+    const subscription2 = jest.fn();
+
+    converse.subscribe(testKey, subscription1);
+    converse.subscribe(testKey, subscription2);
+    converse.publish(testKey, { foo: 'bar' });
+
+    expect(subscription1).toHaveBeenCalledTimes(1);
+    expect(subscription1).toHaveBeenCalledWith({ foo: 'bar' }, {});
+
+    expect(subscription2).toHaveBeenCalledTimes(1);
+    expect(subscription2).toHaveBeenCalledWith({ foo: 'bar' }, {});
+  });
+
+  it('can publish when there are no subscriptions', async () => {
+    const converse = await initConverse().start({});
+
+    converse.publish(testKey, { foo: 'bar' });
+  });
+
+  it('can use the context in the subscriptions', async () => {
+    const converse = await initConverse().start({});
+
+    const subscription1 = jest.fn((data, context) => {
+      context.hello = 'hola';
+    });
+    const subscription2 = jest.fn();
+
+    converse.subscribe(testKey, subscription1);
+    converse.subscribe(testKey, subscription2);
+    converse.publish(testKey, { foo: 'bar' });
+
+    expect(subscription1).toHaveBeenCalledTimes(1);
+    expect(subscription1).toHaveBeenCalledWith({ foo: 'bar' }, expect.anything());
+
+    expect(subscription2).toHaveBeenCalledTimes(1);
+    expect(subscription2).toHaveBeenCalledWith({ foo: 'bar' }, { hello: 'hola' });
+  });
+
+  it('can unsubscribe from a publication', async () => {
+    const converse = await initConverse().start({});
+
+    const subscription1 = jest.fn();
+    const subscription2 = jest.fn();
+
+    converse.subscribe(testKey, subscription1);
+    converse.subscribe(testKey, subscription2);
+
+    converse.publish(testKey, { foo: 'bar' });
+
+    converse.unsubscribe(testKey, subscription2);
+
+    converse.publish(testKey, { foo: 'bar' });
+
+    expect(subscription1).toHaveBeenCalledTimes(2);
+    expect(subscription2).toHaveBeenCalledTimes(1);
+  });
 });
