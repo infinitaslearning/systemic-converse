@@ -6,7 +6,7 @@ A [Systemic component](https://github.com/onebeyond/systemic) that let's other s
 
 [Betisman](https://github.com/Betisman), [neodmy](https://github.com/neodmy), [hamsaaldrobi](https://github.com/hamsaaldrobi)
 
-A parting gift with many thanks for all your amazing efforts over the years. Hopefully we’ll ‘Converse’ many more time in the future!
+A parting gift with many thanks for all your amazing efforts over the years. Hopefully we’ll ‘Converse’ many more times in the future!
 
 Your friends from the Integrations team
 
